@@ -53,7 +53,7 @@ WITH channels as (
         WHEN LOWER(site_name) LIKE '%youtube%' THEN 'Paid Display'
         ELSE 'Unknown'
     END AS channel
-  FROM {{ ref('ga4_goal_a') }}
+  FROM {{ ga4.ga4_goal_a(source_name, table_name,plan_code='moe') }}
 ),with_channel AS (
 select *,
   CASE 
