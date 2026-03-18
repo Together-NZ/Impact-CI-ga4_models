@@ -1,4 +1,4 @@
-{% macro ga4_goal_channel(source_name, table_name,plan_code) %}
+{% macro ga4_goal_channel(source_name, table_name, plan_code, ga4_goal_a_model) %}
 WITH channels as (
   SELECT *,
     -- Define channel using the resolved site_name field in this CTE
@@ -53,7 +53,7 @@ WITH channels as (
         WHEN LOWER(site_name) LIKE '%youtube%' THEN 'Paid Display'
         ELSE 'Unknown'
     END AS channel
-  FROM ({{ ga4.ga4_goal_a(source_name, table_name, plan_code) }})
+  FROM {{ ref(ga4_goal_a_model) }}
 ),with_channel AS (
 select *,
   CASE 
