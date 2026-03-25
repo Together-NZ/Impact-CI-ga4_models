@@ -138,7 +138,14 @@ SELECT
   site_name
 FROM filtered_creatives
 WHERE row_num = 1 
+),
+remove_outdated_data AS (
+  SELECT * FROM filtered_creatives 
+  WHERE NOT (
+     date between DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY) and CURRENT_DATE()
+     AND  DATE_DIFF(DATE(report_end_date), CURRENT_DATE(), DAY) >=2
+  )
 )
 SELECT * 
-FROM final_result 
+FROM remove_outdated_data 
 {% endmacro %}
