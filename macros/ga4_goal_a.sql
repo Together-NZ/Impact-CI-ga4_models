@@ -11,7 +11,7 @@ WITH deduplicated_data AS (
     JSON_VALUE(data, '$.sessionManualAdContent') AS sessionManualAdContent,
     JSON_VALUE(data, '$.eventName') AS eventName,
     SAFE_CAST(SAFE_CAST(JSON_VALUE(data, '$.eventCount') AS FLOAT64) AS INT64) AS eventCount,
-    JSON_VALUE(data, '$.eventValue') AS eventValue,
+    SAFE_CAST(SAFE_CAST(JSON_VALUE(data, '$.eventValue') AS FLOAT64) AS STRING) AS eventValue,
     JSON_VALUE(data, '$.report_start_date') AS report_start_date,
     JSON_VALUE(data, '$.report_end_date') AS report_end_date,
     JSON_VALUE(data,'$.sessionSourceMedium') AS sessionSourceMediumraw,
@@ -96,8 +96,8 @@ WITH deduplicated_data AS (
         JSON_VALUE(data, '$.sessionCampaignName'),
         JSON_VALUE(data, '$.sessionManualAdContent'),
         JSON_VALUE(data, '$.eventName'),
-        json_value(data,'$.eventCount'),
-        JSON_VALUE(data,'$.eventValue')
+        SAFE_CAST(SAFE_CAST(JSON_VALUE(data, '$.eventCount') AS FLOAT64) AS INT64),
+        SAFE_CAST(SAFE_CAST(JSON_VALUE(data, '$.eventValue') AS FLOAT64) AS STRING) 
       ORDER BY _sdc_extracted_at DESC
     ) AS row_num
 
@@ -140,7 +140,7 @@ FROM filtered_creatives
 WHERE row_num = 1 
 ),
 remove_outdated_data AS (
-  SELECT * FROM filtered_creatives 
+  SELECT * FROM final_result
   WHERE NOT (
      date between DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY) and CURRENT_DATE()
      AND  DATE_DIFF(DATE(report_end_date), CURRENT_DATE(), DAY) >=2
