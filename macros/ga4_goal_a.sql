@@ -87,22 +87,11 @@ WITH deduplicated_data AS (
             AND (LOWER(JSON_VALUE(data, '$.sessionSourceMedium')) LIKE '%cpm%' 
                   OR LOWER(JSON_VALUE(data, '$.sessionSourceMedium')) LIKE '%cpc%') THEN 'twitter'
         ELSE SPLIT(JSON_VALUE(data, '$.sessionSourceMedium'),'/')[OFFSET(0)]
-    END AS site_name,
-    
-    ROW_NUMBER() OVER (
-      PARTITION BY 
-        PARSE_DATE('%Y%m%d', JSON_VALUE(data, '$.date')),
-        JSON_VALUE(data, '$.sessionSourceMedium'),
-        JSON_VALUE(data, '$.sessionCampaignName'),
-        JSON_VALUE(data, '$.sessionManualAdContent'),
-        JSON_VALUE(data, '$.eventName'),
-        SAFE_CAST(SAFE_CAST(JSON_VALUE(data, '$.eventCount') AS FLOAT64) AS INT64),
-        SAFE_CAST(SAFE_CAST(JSON_VALUE(data, '$.eventValue') AS FLOAT64) AS STRING) 
-      ORDER BY _sdc_extracted_at DESC
-    ) AS row_num
+    END AS site_name
 
   FROM 
     {{ source(source_name, table_name) }}
+  WHERE (DATE_DIFF(DATE(JSON_VALUE(data, '$.report_end_date')),CURRENT_DATE(),DAY))=-1
 
 ),
 
@@ -142,15 +131,7 @@ SELECT
   _sdc_table_version,
   site_name
 FROM filtered_creatives
-WHERE row_num = 1 
-),
-remove_outdated_data AS (
-  SELECT * FROM final_result
-  WHERE NOT (
-     date between DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY) and CURRENT_DATE()
-     AND  ABS(DATE_DIFF(DATE(report_end_date), CURRENT_DATE(), DAY)) >=2
-  )
 )
 SELECT * 
-FROM remove_outdated_data 
+FROM final_result 
 {% endmacro %}
