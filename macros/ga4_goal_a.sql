@@ -1,4 +1,4 @@
-{% macro ga4_goal_a(source_name, table_name,plan_code) %}
+{% macro ga4_goal_a(source_name, table_name,plan_code,dash_union_source_name,dash_union_table_name) %}
 
 WITH deduplicated_data AS (
   SELECT 
@@ -108,7 +108,12 @@ WITH deduplicated_data AS (
 
 filtered_creatives as (
   SELECT * except(sessionManualAdContent),
-  CASE WHEN LOWER(sessionManualAdContent) like '%' || '{{ plan_code }}' || '%' THEN SPLIT(sessionManualAdContent,'_')[OFFSET(ARRAY_LENGTH(SPLIT(sessionManualAdContent,'_'))-1)]
+  CASE WHEN LOWER(sessionManualAdContent) IN (
+    SELECT DISTINCT creative_name FROM 
+    {{ source(dash_union_source_name, dash_union_table_name) }}
+  ) 
+  
+   THEN SPLIT(sessionManualAdContent,'_')[OFFSET(ARRAY_LENGTH(SPLIT(sessionManualAdContent,'_'))-1)]
   else sessionManualAdContent
   end as sessionManualAdContent
   from deduplicated_data
