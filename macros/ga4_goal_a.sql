@@ -109,7 +109,7 @@ WITH deduplicated_data AS (
 filtered_creatives as (
   SELECT * except(sessionManualAdContent),
   CASE WHEN LOWER(sessionManualAdContent) IN (
-    SELECT DISTINCT creative_name FROM 
+    SELECT DISTINCT LOWER(creative_name) FROM 
     {{ source(dash_union_source_name, dash_union_table_name) }}
   ) 
   
