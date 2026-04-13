@@ -103,7 +103,9 @@ WITH deduplicated_data AS (
 
   FROM 
     {{ source(source_name, table_name) }}
-
+    {% if is_incremental() %}
+    WHERE PARSE_DATE('%Y%m%d', JSON_VALUE(data, '$.date')) >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)
+    {% endif %}
 ),
 
 filtered_creatives as (
