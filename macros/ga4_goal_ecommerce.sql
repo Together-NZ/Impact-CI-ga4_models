@@ -1,4 +1,4 @@
-{ % macro ga4_goal_ecommerce(source_name, table_name, plan_code, dash_source_name, dash_table_name) %}
+{% macro ga4_goal_ecommerce(source_name, table_name,dash_source_name, dash_table_name) %}
 WITH ecommerce AS (
     SELECT JSON_VALUE(data,'$.sessionCampaignName') AS campaign_name,
     JSON_VALUE(data, '$.itemName') AS product_name,
@@ -73,7 +73,7 @@ WITH ecommerce AS (
                   OR LOWER(JSON_VALUE(data, '$.sessionSourceMedium')) LIKE '%cpc%') THEN 'twitter'
         ELSE 'other'
     END AS site_name
-    FROM {{ source('ga4_raw', 'ecommerce_goal') }}
+    FROM {{ source(source_name, table_name) }}
 ),
 deduplicated_data AS (
     select *,
@@ -195,7 +195,7 @@ filtered_creatives as (
   SELECT * except(sessionManualAdContent),
   CASE WHEN LOWER(sessionManualAdContent) IN (
     SELECT DISTINCT LOWER(creative_name) FROM 
-    {{ source(dash_union_source_name, dash_union_table_name) }}
+    {{ source(dash_source_name, dash_table_name) }}
   ) 
   
    THEN SPLIT(sessionManualAdContent,'_')[OFFSET(ARRAY_LENGTH(SPLIT(sessionManualAdContent,'_'))-1)]
