@@ -1,4 +1,4 @@
-{ % macro ga4_goal_ecommerce(source_name, table_name, plan_code, ga4_goal_a_model) %}
+{ % macro ga4_goal_ecommerce(source_name, table_name, plan_code, dash_source_name, dash_table_name) %}
 WITH ecommerce AS (
     SELECT JSON_VALUE(data,'$.sessionCampaignName') AS campaign_name,
     JSON_VALUE(data, '$.itemName') AS product_name,
@@ -282,3 +282,5 @@ CASE
   ELSE 'OTHER'
 END AS media_format
 FROM filtered_creatives
+
+{% endmacro %}
