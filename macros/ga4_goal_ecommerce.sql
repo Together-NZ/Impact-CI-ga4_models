@@ -199,9 +199,9 @@ filtered_creatives as (
   ) 
   
    THEN SPLIT(sessionManualAdContent,'_')[OFFSET(ARRAY_LENGTH(SPLIT(sessionManualAdContent,'_'))-1)]
-  else sessionManualAdContent
+   else sessionManualAdContent
   end as sessionManualAdContent
-  from deduplicated_data
+  from non_media_format
 )
 SELECT *,
 CASE
