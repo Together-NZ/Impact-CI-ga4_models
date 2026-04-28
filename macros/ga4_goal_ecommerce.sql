@@ -210,7 +210,7 @@ filtered_creatives as (
   end as sessionManualAdContent
   from non_media_format
 ),
-final_result as (
+final_result2 as (
 SELECT *,
 CASE
   -- hard override for SOCIAL
@@ -292,7 +292,7 @@ END AS media_format
 FROM filtered_creatives
 ),
 remove_outdated_data AS (
-  SELECT * FROM final_result
+  SELECT * FROM final_result2
   WHERE NOT (
      date between DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY) and CURRENT_DATE()
      AND  ABS(DATE_DIFF(DATE(report_end_date), CURRENT_DATE(), DAY)) >=2
