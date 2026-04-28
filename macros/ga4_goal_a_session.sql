@@ -15,6 +15,8 @@ WITH deduplicated_data AS (
     JSON_VALUE(data, '$.sessionManualAdContent') AS sessionManualAdContent,
 
     JSON_VALUE(data,'$.sessionSourceMedium') AS sessionSourceMediumraw,
+    JSON_VALUE(data, '$.report_start_date') AS report_start_date,
+    JSON_VALUE(data, '$.report_end_date') AS report_end_date,
     json_value(data,'$.sessions') AS sessions,
     JSON_VALUE(data,'$.engagedSession') AS engagedSession,
     JSON_VALUE(data, '$.userEngagementDuration') AS userEngagementDuration,
