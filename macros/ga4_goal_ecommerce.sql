@@ -9,6 +9,8 @@ WITH ecommerce AS (
     JSON_VALUE(data,'$.sessionManualAdContent') AS sessionManualAdContent,
     _sdc_extracted_at,
     JSON_VALUE(data,'$.itemVariant') AS itemVariant,
+    JSON_VALUE(data,'$.report_start_date') AS report_start_date,
+    JSON_VALUE(data,'$.report_end_date') AS report_end_date,
     CASE 
         WHEN LOWER(JSON_VALUE(data, '$.sessionSourceMedium')) LIKE '%organic%' THEN 'organic_search'
         WHEN LOWER(JSON_VALUE(data, '$.sessionSourceMedium')) LIKE '%direct%' 
@@ -78,7 +80,12 @@ WITH ecommerce AS (
 deduplicated_data AS (
     select *,
     
-    ROW_NUMBER() OVER (PARTITION BY campaign_name,product_name,sessionSourceMedium,date,sessionManualAdContent,site_name,itemVariant ORDER BY _sdc_extracted_at DESC) as row_num
+    ROW_NUMBER() OVER (PARTITION BY 
+    campaign_name,
+    product_name,
+    sessionSourceMedium,date,sessionManualAdContent,site_name,itemVariant,
+    report_start_date,
+    report_end_date ORDER BY _sdc_extracted_at DESC) as row_num
     from ecommerce 
 ),
 final_result AS (
@@ -202,7 +209,8 @@ filtered_creatives as (
    else sessionManualAdContent
   end as sessionManualAdContent
   from non_media_format
-)
+),
+final_result as (
 SELECT *,
 CASE
   -- hard override for SOCIAL
@@ -282,5 +290,14 @@ CASE
   ELSE 'OTHER'
 END AS media_format
 FROM filtered_creatives
-
+),
+remove_outdated_data AS (
+  SELECT * FROM final_result
+  WHERE NOT (
+     date between DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY) and CURRENT_DATE()
+     AND  ABS(DATE_DIFF(DATE(report_end_date), CURRENT_DATE(), DAY)) >=2
+  )
+)
+SELECT * 
+FROM remove_outdated_data 
 {% endmacro %}
