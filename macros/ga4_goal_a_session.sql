@@ -1,4 +1,4 @@
-{% macro ga4_goal_a(source_name, table_name,plan_code,dash_union_source_name,dash_union_table_name) %}
+{% macro ga4_goal_a_session(source_name, table_name,plan_code,dash_union_source_name,dash_union_table_name) %}
 
 {{ config(
     materialized='table',
