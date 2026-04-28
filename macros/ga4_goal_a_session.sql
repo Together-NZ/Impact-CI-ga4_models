@@ -1,9 +1,5 @@
 {% macro ga4_goal_a_session(source_name, table_name,plan_code,dash_union_source_name,dash_union_table_name) %}
 
-{{ config(
-    materialized='table',
-) }}
-
 WITH deduplicated_data AS (
   SELECT 
     PARSE_DATE('%Y%m%d', JSON_VALUE(data, '$.date')) AS date,
