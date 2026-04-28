@@ -76,6 +76,9 @@ WITH ecommerce AS (
         ELSE 'other'
     END AS site_name
     FROM {{ source(source_name, table_name) }}
+    {% if is_incremental() %}
+    WHERE PARSE_DATE('%Y%m%d', JSON_VALUE(data, '$.date')) >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)
+    {% endif %}
 ),
 deduplicated_data AS (
     select *,
