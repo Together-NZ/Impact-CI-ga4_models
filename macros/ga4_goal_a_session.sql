@@ -97,7 +97,8 @@ WITH deduplicated_data AS (
         PARSE_DATE('%Y%m%d', JSON_VALUE(data, '$.date')),
         JSON_VALUE(data, '$.sessionSourceMedium'),
         JSON_VALUE(data, '$.sessionCampaignName'),
-        JSON_VALUE(data, '$.sessionManualAdContent')
+        JSON_VALUE(data, '$.sessionManualAdContent'),
+        JSON_VALUE(data, '$.sessionMedium')
       ORDER BY _sdc_extracted_at DESC
     ) AS row_num
 
