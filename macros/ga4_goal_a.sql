@@ -17,6 +17,9 @@ WITH deduplicated_data AS (
     JSON_VALUE(data,'$.sessionSourceMedium') AS sessionSourceMediumraw,
     json_value(data,'$.hostName') AS hostName,
     JSON_VALUE(data,'$."customEvent:serviceType[screen_view]"') AS serviceType,
+    JSON_VALUE(data,'$.pageLocation') AS pageLocation,
+    JSON_VALUE(data,'$.customEvent:form_type') AS form_type,
+    JSON_VALUE(data,'$.customEvent:event_category') AS event_category,
     _sdc_extracted_at,
     _sdc_received_at,
     _sdc_batched_at,
@@ -96,6 +99,13 @@ WITH deduplicated_data AS (
         JSON_VALUE(data, '$.sessionCampaignName'),
         JSON_VALUE(data, '$.sessionManualAdContent'),
         JSON_VALUE(data, '$.eventName'),
+        JSON_VALUE(data, '$.pageLocation'),
+        JSON_VALUE(data, '$.hostName'),
+        JSON_VALUE(data,'$."customEvent:serviceType[screen_view]"'),
+        JSON_VALUE(data,'$.pageLocation'),
+        
+        JSON_VALUE(data,'$.customEvent:form_type'),
+        JSON_VALUE(data,'$.customEvent:event_category'),
         SAFE_CAST(SAFE_CAST(JSON_VALUE(data, '$.eventCount') AS FLOAT64) AS INT64),
         SAFE_CAST(SAFE_CAST(JSON_VALUE(data, '$.eventValue') AS FLOAT64) AS STRING) 
       ORDER BY _sdc_extracted_at DESC
