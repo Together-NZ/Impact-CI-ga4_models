@@ -105,9 +105,7 @@ WITH deduplicated_data AS (
         JSON_VALUE(data,'$.pageLocation'),
         
         JSON_VALUE(data,'$.customEvent:form_type'),
-        JSON_VALUE(data,'$.customEvent:event_category'),
-        SAFE_CAST(SAFE_CAST(JSON_VALUE(data, '$.eventCount') AS FLOAT64) AS INT64),
-        SAFE_CAST(SAFE_CAST(JSON_VALUE(data, '$.eventValue') AS FLOAT64) AS STRING) 
+        JSON_VALUE(data,'$.customEvent:event_category')
       ORDER BY _sdc_extracted_at DESC
     ) AS row_num
 
