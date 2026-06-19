@@ -1,4 +1,4 @@
-{{macros.ga4_goal_channel_keyword(source_name, table_name,dash_union_source_name,dash_union_table_name)}}
+{% macro ga4_goal_channel_keyword(source_name, table_name,dash_union_source_name,dash_union_table_name) %}
 
 WITH raw_data as ( SELECT
   JSON_VALUE(data,'$.sessionCampaignName') AS sessionCampaignName,
