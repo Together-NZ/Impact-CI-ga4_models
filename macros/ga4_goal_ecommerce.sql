@@ -86,9 +86,8 @@ deduplicated_data AS (
     ROW_NUMBER() OVER (PARTITION BY 
     campaign_name,
     product_name,
-    sessionSourceMedium,date,sessionManualAdContent,site_name,itemVariant,
-    report_start_date,
-    report_end_date ORDER BY _sdc_extracted_at DESC) as row_num
+    sessionSourceMedium,date,sessionManualAdContent,site_name,itemVariant
+     ORDER BY _sdc_extracted_at DESC) as row_num
     from ecommerce 
 ),
 final_result AS (
