@@ -303,7 +303,7 @@ remove_outdated_data AS (
 funnel_decleration AS (
   SELECT DISTINCT campaign_name, funnel, media_format FROM {{source(dash_source_name, dash_table_name)}}
 )
-SELECT remove_outdated_data.* except(media_format), remove_outdated_data.campaign_name, funnel_media_source.funnel,
+SELECT remove_outdated_data.* except(media_format), funnel_media_source.funnel,
 CASE WHEN remove_outdated_data.campaign_name=funnel_media_source.campaign_name THEN funnel_media_source.media_format ELSE remove_outdated_data.media_format END AS media_format
 FROM remove_outdated_data LEFT JOIN funnel_decleration AS funnel_media_source ON remove_outdated_data.campaign_name=funnel_media_source.campaign_name
 {% endmacro %}
