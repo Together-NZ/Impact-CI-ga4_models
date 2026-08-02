@@ -124,7 +124,7 @@ END AS campaign_name_selection
  FROM campaign_base camb LEFT JOIN deduplicate_raw ON LOWER(deduplicate_raw.campaign_name_raw) = LOWER(camb.campaign_name_raw)
 ),
 funnel_campaign AS (
-     select distinct funnel, campaign_name from {{ source(source_name, table_name) }}
+     select distinct funnel, campaign_name,media_format from {{ source(source_name, table_name) }}
 ),
 
 
@@ -148,6 +148,8 @@ on lower(trim(t1.campaign_name)) = lower(trim(t2.old_campaign_name)))
 SELECT md.*,
 COALESCE(fc.funnel,'OTHER') as funnel,
 CASE
+  WHEN non_media_format.campaign_name = funnel_campaign.campaign_name THEN funnel_campaign.media_format
+
   -- hard override for SOCIAL
   WHEN
     LOWER(COALESCE(sessionSourceMediumraw, '')) LIKE '%social%' OR
