@@ -148,7 +148,7 @@ on lower(trim(t1.campaign_name)) = lower(trim(t2.old_campaign_name)))
 SELECT md.*,
 COALESCE(fc.funnel,'OTHER') as funnel,
 CASE
-  WHEN md.campaign_name = funnel_campaign.campaign_name THEN funnel_campaign.media_format
+  WHEN md.campaign_name = fc.campaign_name THEN fc.media_format
 
   -- hard override for SOCIAL
   WHEN
