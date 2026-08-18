@@ -107,13 +107,15 @@ WITH deduplicated_data AS (
         
         JSON_VALUE(data,'$.customEvent:form_type'),
         JSON_VALUE(data,'$.customEvent:event_category')
-      ORDER BY _sdc_extracted_at DESC
+      ORDER BY _sdc_extracted_at DESC, _sdc_received_at DESC
     ) AS row_num
 
   FROM 
     {{ source(source_name, table_name) }}
     {% if is_incremental() %}
-    WHERE PARSE_DATE('%Y%m%d', JSON_VALUE(data, '$.date')) >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)
+    WHERE
+      _sdc_batched_at >= TIMESTAMP(DATE_SUB(CURRENT_DATE(), INTERVAL 2 DAY))
+      AND PARSE_DATE('%Y%m%d', JSON_VALUE(data, '$.date')) >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)
     {% endif %}
 ),
 
