@@ -92,7 +92,7 @@ WITH deduplicated_data AS (
         JSON_VALUE(data, '$.sessionSourceMedium'),
         JSON_VALUE(data, '$.sessionCampaignName'),
         JSON_VALUE(data, '$.sessionManualAdContent'),
-        JSON_VALUE(data, '$.eventName'),
+        JSON_VALUE(data, '$.eventName')
       ORDER BY _sdc_extracted_at DESC, _sdc_received_at DESC
     ) AS row_num
 
