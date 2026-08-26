@@ -1,4 +1,4 @@
-{% macro ga4_goal_a_contact_purchase(source_name, table_name) %}
+{% macro ga4_goal_a_contact_purchase(source_name, table_name, dash_union_source_name, dash_union_table_name) %}
 WITH deduplicated_data AS (
   SELECT 
     PARSE_DATE('%Y%m%d', JSON_VALUE(data, '$.date')) AS date,
