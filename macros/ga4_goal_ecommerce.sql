@@ -202,17 +202,27 @@ COALESCE(t2.new_campaign_name,t1.campaign_name) AS campaign_name,
 t1.* except(campaign_name)
 from semi_final as t1 left join `together-internal.google_ads_campaign_mapping.campaign_name_mapping` as t2
 on lower(trim(t1.campaign_name)) = lower(trim(t2.old_campaign_name))),
-filtered_creatives as (
-  SELECT * except(sessionManualAdContent),
-  CASE WHEN LOWER(sessionManualAdContent) IN (
-    SELECT DISTINCT LOWER(creative_name) FROM 
-    {{ source(dash_source_name, dash_table_name) }}
-  ) 
-  
-   THEN SPLIT(sessionManualAdContent,'_')[OFFSET(ARRAY_LENGTH(SPLIT(sessionManualAdContent,'_'))-1)]
-   else sessionManualAdContent
-  end as sessionManualAdContent
-  from non_media_format
+filtered_creatives_base AS (
+  SELECT
+    *,
+    CASE
+      WHEN LOWER(sessionManualAdContent) IN (
+        SELECT DISTINCT LOWER(creative_name)
+        FROM {{ source(dash_source_name, dash_table_name) }}
+      )
+      THEN SPLIT(sessionManualAdContent, '_')[
+        OFFSET(ARRAY_LENGTH(SPLIT(sessionManualAdContent, '_')) - 1)
+      ]
+      ELSE sessionManualAdContent
+    END AS _creative_descr
+  FROM non_media_format
+),
+filtered_creatives AS (
+  SELECT
+    * EXCEPT(sessionManualAdContent, _creative_descr),
+    _creative_descr AS creative_descr,
+    _creative_descr AS sessionManualAdContent
+  FROM filtered_creatives_base
 ),
 final_result2 as (
 SELECT *,
