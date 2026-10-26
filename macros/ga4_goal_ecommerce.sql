@@ -98,39 +98,6 @@ CASE WHEN ARRAY_LENGTH(SPLIT(campaign_name,'_')) >=2
 THEN SPLIT(campaign_name,'_')[OFFSET(1)] 
 ELSE campaign_name
 END AS campaign_name_selection,
-  CASE 
-                WHEN LOWER(site_name) LIKE '%facebook%' THEN 'Facebook'
-                WHEN LOWER(site_name) LIKE '%demand_gen%' THEN 'Demand Gen'
-                WHEN LOWER(site_name) LIKE '%organic_search' THEN 'Organic Search'
-                WHEN (lower(site_name) like '%referral%') THEN 'Referral'
-                WHEN LOWER(site_name) LIKE '%email%' THEN 'Email'
-                WHEN LOWER(sessionSourceMedium) LIKE '%ttd%' THEN 'Ttd'
-                WHEN LOWER(sessionSourceMedium) LIKE '%tiktok%' THEN 'Tiktok'
-                WHEN LOWER(sessionSourceMedium) LIKE '%snapchat%' THEN 'Snapchat'
-                WHEN LOWER(sessionSourceMedium) LIKE '%youtube%' OR LOWER(sessionSourceMedium) LIKE '%yt%' THEN 'Youtube'
-                WHEN LOWER(sessionSourceMedium) LIKE '%3now%' OR LOWER(sessionSourceMedium) LIKE '%three%' THEN 'Threenow'
-                WHEN LOWER(sessionSourceMedium) LIKE '%nzme%' THEN 'Nzme'
-                WHEN LOWER(sessionSourceMedium) LIKE '%acast%' THEN 'Acast'
-                WHEN (LOWER(site_name) like '%ttd%' or lower(site_name) like '%dv360%' ) and (lower(campaign_name) like '%youtube%'
-                or lower(campaign_name) like '%yt%' or lower(sessionManualAdContent) like '%yt%' or lower(sessionManualAdContent) like '%youtube%') THEN 'Youtube'
-                WHEN (LOWER(site_name) like '%ttd%' or lower(site_name) like '%dv360%' ) and (lower(campaign_name) like '%nzme%' 
-                or lower(sessionManualAdContent) like '%nzme%') THEN 'Nzme'
-                WHEN (LOWER(site_name) like '%ttd%' or lower(site_name) like '%dv360%' ) and (lower(campaign_name) like '%tvnz%' or lower(sessionManualAdContent)
-                like '%tvnz%') THEN 'Tvnz'
-                WHEN (LOWER(site_name) like '%ttd%' or lower(site_name) like '%dv360%' ) and (lower(campaign_name) like '%3now%' or lower(sessionManualAdContent)
-                like '%three%' or lower(sessionManualAdContent) like '%3now%' or lower(campaign_name) like '%three%') THEN 'Threenow'
-                WHEN (LOWER(site_name) like '%ttd%' or lower(site_name) like '%dv360%') and (lower(campaign_name) like '%stuff%' or lower(sessionManualAdContent) like '%stuff%' )
-                THEN 'Stuff'
-                WHEN (LOWER(site_name) LIKE '%dv360%' or lower(site_name)like '%metservice%') and (lower(campaign_name) like '%metservice%' or lower(sessionManualAdContent) like '%metservice%') THEN 'Metservice'
-                WHEN (LOWER(site_name) LIKE '%dv360%' or lower(site_name)like '%mediaworks%') and (lower(campaign_name) like '%mediaworks%' or lower(sessionManualAdContent) like '%mediaworks%') THEN 'Mediaworks'
-                WHEN (LOWER(site_name) LIKE '%dv360%' or lower(site_name) like '%nzme%') and (lower(campaign_name) like '%buseinss%' and lower(campaign_name) like 'desk%') THEN 'Business Desk'
-                WHEN (LOWER(site_name) LIKE '%dv360%' or lower(site_name) like '%nzme%') and (lower(sessionManualAdContent) like '%buseinss%' and lower(sessionManualAdContent) like 'desk%') THEN 'Business Desk'
-                WHEN (LOWER(site_name) like '%business%' and lower(site_name) like '%desk%') THEN 'Business Desk'
-                WHEN (LOWER(site_name) like '%ttd%' or lower(site_name) like '%dv360%' ) AND (LOWER(campaign_name) like '%acast%' or lower(sessionManualAdContent) like '%acast%') THEN 'Acast'
-                WHEN (LOWER(campaign_name) LIKE '%perf%' and lower(campaign_name) like '%max%') or lower(campaign_name) like '%pmax%' THEN 'Performance Max'
-                WHEN LOWER(site_name) LIKE '%google_ads_search%' THEN 'Search'
-                ELSE trim(INITCAP(sessionSourceMedium))
-            END AS publisher,
     CASE 
         WHEN LOWER(site_name) LIKE '%acast%' THEN 'Paid Display'
         WHEN LOWER(site_name) LIKE '%adfenix%' THEN 'Owned Display'
@@ -185,6 +152,44 @@ END AS campaign_name_selection,
 FROM deduplicated_data
 WHERE row_num = 1),
 
+with_publisher AS (
+SELECT *,
+  CASE 
+                WHEN LOWER(site_name) like '%own_social%' THEN 'Owned Social'
+                WHEN (LOWER(site_name) LIKE '%meta%' OR LOWER(site_name) LIKE '%facebook%') AND (lower(campaign_name) like '%wat%' or lower(split(campaign_name,'_')[safe_offset(0)]) like '%00%') and channel like '%Paid%' THEN 'Meta'
+                WHEN LOWER(site_name) LIKE '%demand_gen%' THEN 'Demand Gen'
+                WHEN LOWER(site_name) LIKE '%organic_search' THEN 'Organic Search'
+                WHEN LOWER(sessionSourceMedium) LIKE '%ttd%' THEN 'Ttd'
+                WHEN LOWER(site_name) LIKE '%email%' THEN 'Email'
+                WHEN LOWER(site_name) LIKE '%tiktok%' AND (lower(campaign_name) like '%wat%' or lower(split(campaign_name,'_')[safe_offset(0)]) like '%00%') and channel like '%Paid%' THEN 'Tiktok'
+                WHEN LOWER(sessionSourceMedium) LIKE '%snapchat%' THEN 'Snapchat'
+                WHEN LOWER(sessionSourceMedium) LIKE '%youtube%' OR LOWER(sessionSourceMedium) LIKE '%yt%' THEN 'Youtube'
+                WHEN LOWER(sessionSourceMedium) LIKE '%3now%' OR LOWER(sessionSourceMedium) LIKE '%three%' THEN 'Threenow'
+                WHEN LOWER(sessionSourceMedium) LIKE '%nzme%' THEN 'Nzme'
+                WHEN LOWER(sessionSourceMedium) LIKE '%acast%' THEN 'Acast'
+                WHEN (lower(site_name) like '%referral%') THEN 'Referral'
+                WHEN (LOWER(site_name) like '%ttd%' or lower(site_name) like '%dv360%' ) and (lower(campaign_name) like '%youtube%'
+                or lower(campaign_name) like '%yt%' or lower(sessionManualAdContent) like '%yt%' or lower(sessionManualAdContent) like '%youtube%') THEN 'Youtube'
+                WHEN (LOWER(site_name) like '%ttd%' or lower(site_name) like '%dv360%' ) and (lower(campaign_name) like '%nzme%' 
+                or lower(sessionManualAdContent) like '%nzme%') THEN 'Nzme'
+                WHEN (LOWER(site_name) like '%ttd%' or lower(site_name) like '%dv360%' ) and (lower(campaign_name) like '%tvnz%' or lower(sessionManualAdContent)
+                like '%tvnz%') THEN 'Tvnz'
+                WHEN (LOWER(site_name) like '%ttd%' or lower(site_name) like '%dv360%' ) and (lower(campaign_name) like '%3now%' or lower(sessionManualAdContent)
+                like '%three%' or lower(sessionManualAdContent) like '%3now%' or lower(campaign_name) like '%three%') THEN 'Threenow'
+                WHEN (LOWER(site_name) like '%ttd%' or lower(site_name) like '%dv360%') and (lower(campaign_name) like '%stuff%' or lower(sessionManualAdContent) like '%stuff%' )
+                THEN 'Stuff'
+                WHEN (LOWER(site_name) LIKE '%dv360%' or lower(site_name)like '%metservice%') and (lower(campaign_name) like '%metservice%' or lower(sessionManualAdContent) like '%metservice%') THEN 'Metservice'
+                WHEN (LOWER(site_name) LIKE '%dv360%' or lower(site_name)like '%mediaworks%') and (lower(campaign_name) like '%mediaworks%' or lower(sessionManualAdContent) like '%mediaworks%') THEN 'Mediaworks'
+                WHEN (LOWER(site_name) LIKE '%dv360%' or lower(site_name) like '%nzme%') and (lower(campaign_name) like '%buseinss%' and lower(campaign_name) like 'desk%') THEN 'Business Desk'
+                WHEN (LOWER(site_name) LIKE '%dv360%' or lower(site_name) like '%nzme%') and (lower(sessionManualAdContent) like '%buseinss%' and lower(sessionManualAdContent) like 'desk%') THEN 'Business Desk'
+                WHEN (LOWER(site_name) like '%business%' and lower(site_name) like '%desk%') THEN 'Business Desk'
+                WHEN (LOWER(site_name) like '%ttd%' or lower(site_name) like '%dv360%' ) AND (LOWER(campaign_name) like '%acast%' or lower(sessionManualAdContent) like '%acast%') THEN 'Acast'
+                WHEN (LOWER(campaign_name) LIKE '%perf%' and lower(campaign_name) like '%max%') or lower(campaign_name) like '%pmax%' THEN 'Performance Max'
+                WHEN LOWER(site_name) LIKE '%google_ads_search%' THEN 'Search'
+                ELSE TRIM(INITCAP(sessionSourceMedium))
+            END AS publisher
+FROM final_result),
+
 semi_final as (
 SELECT
   -- Replace publisher from table2 if matched, else keep original
@@ -192,7 +197,7 @@ SELECT
   t1.*
 EXCEPT(publisher) -- exclude original publisher to avoid duplicate columns
 
-FROM final_result AS t1
+FROM with_publisher AS t1
 LEFT JOIN `together-internal.publisher_naming.publisher_naming` AS t2
   ON LOWER(trim(t1.publisher)) = LOWER(trim(t2.publisher))),
 non_media_format as (
