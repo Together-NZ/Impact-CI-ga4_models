@@ -233,6 +233,18 @@ COALESCE(t2.new_campaign_name,t1.campaign_name) AS campaign_name,
 t1.* except(campaign_name)
 from semi_final as t1 left join `together-internal.google_ads_campaign_mapping.campaign_name_mapping` as t2
 on lower(trim(t1.campaign_name)) = lower(trim(t2.old_campaign_name))),
+remove_old_campaign AS (
+    SELECT nmf.*
+    FROM non_media_format AS nmf
+    WHERE NOT (
+        LOWER(TRIM(COALESCE(nmf.sessionSourceMediumraw, ''))) = 'google / cpc'
+        AND EXISTS (
+            SELECT 1
+            FROM `together-internal.google_ads_campaign_mapping.campaign_name_mapping` AS mapped_campaign
+            WHERE LOWER(TRIM(mapped_campaign.old_campaign_name)) = LOWER(TRIM(nmf.sessionCampaignName))
+        )
+    )
+),
 filtered_creatives_base AS (
   SELECT
     *,
@@ -246,7 +258,7 @@ filtered_creatives_base AS (
       ]
       ELSE sessionManualAdContent
     END AS _creative_descr
-  FROM non_media_format
+  FROM remove_old_campaign
 ),
 filtered_creatives AS (
   SELECT
